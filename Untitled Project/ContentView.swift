@@ -5,6 +5,7 @@ import SwiftUI
 struct ContentView: View {
     @State private var viewModel = FacilityViewModel()
     @State private var selectedTab: AppTab = .map
+    @State private var reportSubTab: ReportSubTab = .submit
     @State private var locationManager = LocationManager()
 
     var body: some View {
@@ -17,6 +18,7 @@ struct ContentView: View {
                     viewModel.selectedFacilityID = facility.id
                     viewModel.selectedCity = facility.city
                     viewModel.selectedDistrict = facility.district
+                    reportSubTab = .submit
                     selectedTab = .report
                 }
             )
@@ -38,6 +40,7 @@ struct ContentView: View {
                     viewModel.selectedFacilityID = facility.id
                     viewModel.selectedCity = facility.city
                     viewModel.selectedDistrict = facility.district
+                    reportSubTab = .submit
                     selectedTab = .report
                 }
             )
@@ -46,7 +49,7 @@ struct ContentView: View {
             }
             .tag(AppTab.favorites)
 
-            ReportIssueView(viewModel: viewModel)
+            ReportIssueView(viewModel: viewModel, selectedSubTab: $reportSubTab)
                 .tabItem {
                     Label("回報", systemImage: "exclamationmark.bubble.fill")
                 }

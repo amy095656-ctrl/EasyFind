@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ReportIssueView: View {
     @Bindable var viewModel: FacilityViewModel
-    @State private var selectedSubTab: ReportSubTab = .submit
+    @Binding var selectedSubTab: ReportSubTab
 
     var body: some View {
         NavigationStack {
@@ -33,7 +33,7 @@ struct ReportIssueView: View {
     }
 }
 
-private enum ReportSubTab: String, CaseIterable, Identifiable {
+enum ReportSubTab: String, CaseIterable, Identifiable {
     case submit = "回報系統"
     case recent = "最近回報"
     case news = "即時回報消息"
@@ -485,5 +485,5 @@ private enum NewsStatus {
 }
 
 #Preview {
-    ReportIssueView(viewModel: FacilityViewModel())
+    ReportIssueView(viewModel: FacilityViewModel(), selectedSubTab: .constant(.submit))
 }
