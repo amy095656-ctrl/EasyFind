@@ -50,8 +50,16 @@ Whether you need a quick drink, specific water temperatures (cold/warm/hot), acc
 
 ---
 
-### 📸 Screenshots & Demo
+### 📸 Screenshots & Operation Demo
 
+#### 🎬 Animated App Operation Preview
+<div align="center">
+  <img src="docs/assets/demo.gif" width="300" alt="EasyFind Animated App Operation Preview">
+</div>
+
+<br/>
+
+#### 📱 Application Screen Views
 <div align="center">
 
 | 🗺️ Main Map & Detail Card | 🎛️ Advanced Filters | ❤️ My Favorites | 📢 Issue Reporting & Updates |
@@ -133,8 +141,16 @@ Whether you need a quick drink, specific water temperatures (cold/warm/hot), acc
 
 ---
 
-### 📸 應用程式畫面與截圖展示
+### 📸 應用程式畫面與動態操作展示
 
+#### 🎬 應用程式動態操作展示 (Operation GIF)
+<div align="center">
+  <img src="docs/assets/demo.gif" width="300" alt="EasyFind 動態操作展示 GIF">
+</div>
+
+<br/>
+
+#### 📱 各頁面畫面截圖 (Screenshots)
 <div align="center">
 
 | 🗺️ 主地圖與設施詳情 | 🎛️ 三分區進階篩選 | ❤️ 我的收藏專區 | 📢 設施通報與即時消息 |
