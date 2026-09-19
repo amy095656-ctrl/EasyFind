@@ -12,7 +12,7 @@
 
 <br/>
 
-![EasyFind Preview GIF](docs/assets/demo.gif)
+<img src="docs/assets/demo.gif" width="300" alt="EasyFind Demo GIF with iPhone Frame">
 
 <br/>
 
