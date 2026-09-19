@@ -18,6 +18,68 @@ final class FacilityViewModel {
     var isLoading = false
     var message: String?
     private(set) var issueReports: [IssueReport] = []
+    private(set) var liveNewsItems: [LiveNewsItem] = [
+        LiveNewsItem(
+            id: "news-1",
+            facilityID: "water-tpe-main-station",
+            status: .inProgress,
+            facilityName: "台北車站公共飲水點",
+            locationText: "台北市中正區",
+            title: "飲水機濾芯例行更換與水質品質檢測中",
+            timeText: "今日 10:30",
+            createdAt: Date()
+        ),
+        LiveNewsItem(
+            id: "news-2",
+            facilityID: "toilet-da-an-park",
+            status: .fixed,
+            facilityName: "大安森林公園公廁",
+            locationText: "台北市大安區",
+            title: "2號無障礙廁所門鎖故障已完成修復作業",
+            timeText: "今日 08:15",
+            createdAt: Date()
+        ),
+        LiveNewsItem(
+            id: "news-3",
+            facilityID: "water-banqiao-station",
+            status: .reported,
+            facilityName: "板橋車站飲水機",
+            locationText: "新北市板橋區",
+            title: "溫水燈號閃爍通報，原廠維修技師派員前往中",
+            timeText: "昨日 16:40",
+            createdAt: Date()
+        ),
+        LiveNewsItem(
+            id: "news-4",
+            facilityID: "D270000154",
+            status: .cleaned,
+            facilityName: "奇美博物館女廁",
+            locationText: "臺南市仁德區",
+            title: "全館洗洗間例行高規格消毒與環境深層保養完畢",
+            timeText: "昨日 12:00",
+            createdAt: Date()
+        ),
+        LiveNewsItem(
+            id: "news-5",
+            facilityID: "F060000141",
+            status: .fixed,
+            facilityName: "捷運大坪林站女廁",
+            locationText: "新北市新店區",
+            title: "感應式水頭感應模組更換完畢，恢復正常水壓",
+            timeText: "前日 14:20",
+            createdAt: Date()
+        ),
+        LiveNewsItem(
+            id: "news-6",
+            facilityID: "G050000019",
+            status: .inProgress,
+            facilityName: "湯圍溝公園無障礙廁所",
+            locationText: "宜蘭縣礁溪鄉",
+            title: "周邊地管防滑與無障礙步道改善工程進行中",
+            timeText: "前日 09:10",
+            createdAt: Date()
+        )
+    ]
     private(set) var favoriteFacilityIDs: Set<Facility.ID> = [] {
         didSet {
             saveFavorites()
@@ -26,6 +88,10 @@ final class FacilityViewModel {
 
     var selectedFacility: Facility? {
         facilities.first { $0.id == selectedFacilityID }
+    }
+
+    func liveNews(for facilityID: Facility.ID) -> [LiveNewsItem] {
+        liveNewsItems.filter { $0.facilityID == facilityID }
     }
 
     var availableCities: [String] {
@@ -206,6 +272,20 @@ final class FacilityViewModel {
         )
 
         issueReports.insert(report, at: 0)
+
+        // 使用者回報同步新增到即時情況動態分頁 (Live News)
+        let liveNews = LiveNewsItem(
+            id: UUID().uuidString,
+            facilityID: facilityID,
+            status: .reported,
+            facilityName: facility.name,
+            locationText: "\(facility.city)\(facility.district)",
+            title: "【使用者回報】\(category.title)：\(detail)",
+            timeText: "剛剛",
+            createdAt: Date()
+        )
+
+        liveNewsItems.insert(liveNews, at: 0)
     }
 }
 
@@ -239,7 +319,7 @@ private enum FacilitySampleData {
             latitude: 25.04790,
             longitude: 121.51730,
             address: "台北市中正區北平西路3號",
-            detailedLocation: "車站地一下樓層東側通道旁",
+            detailedLocation: "車站地下一樓層東側通道旁",
             waterTemperatures: nil,
             openingHours: "每日 05:00 - 24:00 (依車站營運時間)",
             features: [.accessible, .familyFriendly, .genderInclusive, .indoor, .comboFacility],
@@ -496,7 +576,7 @@ private enum FacilitySampleData {
         // CSV 地標：新莊區
         Facility(
             id: "F050000287",
-            name: "宜家家居百貨新莊店無障礙廁所",
+            name: "宜家家居新莊店無障礙廁所",
             type: .restroom,
             latitude: 25.04128817,
             longitude: 121.46503925,
@@ -665,7 +745,7 @@ private enum FacilitySampleData {
             latitude: 25.10975000,
             longitude: 121.84347000,
             address: "新北市瑞芳區頌德里汽車路89號",
-            detailedLocation: "九份舊道入口遊客中心大廳",
+            detailedLocation: "九份老道入口遊客中心大廳",
             waterTemperatures: nil,
             openingHours: "每日 08:00 - 18:00",
             features: [.accessible, .indoor, .comboFacility],

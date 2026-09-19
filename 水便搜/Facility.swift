@@ -9,7 +9,7 @@ enum FacilityType: String, CaseIterable, Codable, Equatable, Identifiable {
 
     var id: Self { self }
 
-    var title: LocalizedStringResource {
+    var title: String {
         switch self {
         case .drinkingWater:
             "飲水機"
@@ -44,7 +44,7 @@ enum WaterTemperature: String, CaseIterable, Codable, Equatable, Identifiable {
 
     var id: Self { self }
 
-    var title: LocalizedStringResource {
+    var title: String {
         switch self {
         case .cold:
             "冰水"
@@ -116,7 +116,7 @@ enum FacilityFeature: String, CaseIterable, Codable, Equatable, Identifiable {
         }
     }
 
-    var title: LocalizedStringResource {
+    var title: String {
         switch self {
         case .hasColdWater:
             "提供冰水"
@@ -243,7 +243,7 @@ enum FacilityFilter: String, CaseIterable, Identifiable {
 
     var id: Self { self }
 
-    var title: LocalizedStringResource {
+    var title: String {
         switch self {
         case .all:
             "全部"

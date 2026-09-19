@@ -11,7 +11,7 @@ enum IssueCategory: String, CaseIterable, Identifiable, Codable, Equatable {
 
     var id: Self { self }
 
-    var title: LocalizedStringResource {
+    var title: String {
         switch self {
         case .unavailable:
             "無法使用"
@@ -53,5 +53,51 @@ struct IssueReport: Identifiable, Codable, Equatable {
     let category: IssueCategory
     let detail: String
     let contact: String
+    let createdAt: Date
+}
+
+enum NewsStatus: String, CaseIterable, Identifiable, Codable, Equatable {
+    case inProgress
+    case fixed
+    case reported
+    case cleaned
+
+    var id: Self { self }
+
+    var title: String {
+        switch self {
+        case .inProgress:
+            "[維護中]"
+        case .fixed:
+            "[已修復]"
+        case .reported:
+            "[通報檢修]"
+        case .cleaned:
+            "[清潔完畢]"
+        }
+    }
+
+    var color: Color {
+        switch self {
+        case .inProgress:
+            .orange
+        case .fixed:
+            .green
+        case .reported:
+            .red
+        case .cleaned:
+            .blue
+        }
+    }
+}
+
+struct LiveNewsItem: Identifiable, Codable, Equatable {
+    let id: String
+    let facilityID: Facility.ID?
+    let status: NewsStatus
+    let facilityName: String
+    let locationText: String
+    let title: String
+    let timeText: String
     let createdAt: Date
 }

@@ -3,6 +3,7 @@ import SwiftUI
 struct ReportIssueView: View {
     @Bindable var viewModel: FacilityViewModel
     @Binding var selectedSubTab: ReportSubTab
+    var onSelectFacilityOnMap: ((Facility) -> Void)? = nil
 
     var body: some View {
         NavigationStack {
@@ -25,7 +26,7 @@ struct ReportIssueView: View {
                 case .recent:
                     RecentReportsSubView(viewModel: viewModel)
                 case .news:
-                    LiveNewsSubView()
+                    LiveNewsSubView(viewModel: viewModel, onSelectFacilityOnMap: onSelectFacilityOnMap)
                 }
             }
             .navigationTitle("設施回報專區")
@@ -36,7 +37,7 @@ struct ReportIssueView: View {
 enum ReportSubTab: String, CaseIterable, Identifiable {
     case submit = "回報系統"
     case recent = "最近回報"
-    case news = "即時回報消息"
+    case news = "即時情況動態"
 
     var id: Self { self }
 }
@@ -215,12 +216,12 @@ struct ReportFormSubView: View {
                 }
                 .disabled(!canSubmit)
             } footer: {
-                Text("目前回報會先保存於本機系統中，並會即時於「最近回報」分頁同步顯示。")
+                Text("回報成功後，將即時同步更新至「即時情況動態」分頁與地圖上該設施的詳細資訊卡中。")
             }
 
             if didSubmit {
                 Section {
-                    Label("已收到回報，謝謝協助更新資料。", systemImage: "checkmark.circle.fill")
+                    Label("已收到回報，並已即時更新至首頁地圖設施詳細資訊與即時情況動態！", systemImage: "checkmark.circle.fill")
                         .foregroundStyle(.green)
                 }
             }
@@ -335,58 +336,10 @@ struct RecentReportsSubView: View {
     }
 }
 
-// MARK: - SubView 3: 即時回報消息 (Live Report Bulletins)
+// MARK: - SubView 3: 即時情況動態分頁 (Live Report Bulletins)
 struct LiveNewsSubView: View {
-    private let newsList: [LiveNewsItem] = [
-        LiveNewsItem(
-            id: "news-1",
-            status: .inProgress,
-            facilityName: "台北車站公共飲水點",
-            locationText: "台北市中正區",
-            title: "飲水機濾芯例行更換與水質品質檢測中",
-            timeText: "今日 10:30"
-        ),
-        LiveNewsItem(
-            id: "news-2",
-            status: .fixed,
-            facilityName: "大安森林公園公廁",
-            locationText: "台北市大安區",
-            title: "2號無障礙廁所門鎖故障已完成修復作業",
-            timeText: "今日 08:15"
-        ),
-        LiveNewsItem(
-            id: "news-3",
-            status: .reported,
-            facilityName: "板橋車站飲水機",
-            locationText: "新北市板橋區",
-            title: "溫水燈號閃爍通報，原廠維修技師派員前往中",
-            timeText: "昨日 16:40"
-        ),
-        LiveNewsItem(
-            id: "news-4",
-            status: .cleaned,
-            facilityName: "奇美博物館女廁",
-            locationText: "臺南市仁德區",
-            title: "全館洗洗間例行高規格消毒與環境深層保養完畢",
-            timeText: "昨日 12:00"
-        ),
-        LiveNewsItem(
-            id: "news-5",
-            status: .fixed,
-            facilityName: "捷運大坪林站公廁",
-            locationText: "新北市新店區",
-            title: "感應式水龍頭感應模組更換完畢，恢復正常水壓",
-            timeText: "前日 14:20"
-        ),
-        LiveNewsItem(
-            id: "news-6",
-            status: .inProgress,
-            facilityName: "礁溪湯圍溝公園無障礙廁所",
-            locationText: "宜蘭縣礁溪鄉",
-            title: "周邊地管防滑與無障礙步道改善工程進行中",
-            timeText: "前日 09:10"
-        )
-    ]
+    @Bindable var viewModel: FacilityViewModel
+    var onSelectFacilityOnMap: ((Facility) -> Void)? = nil
 
     var body: some View {
         List {
@@ -394,93 +347,66 @@ struct LiveNewsSubView: View {
                 HStack(spacing: 8) {
                     Image(systemName: "bell.badge.fill")
                         .foregroundStyle(.blue)
-                    Text("全台公共水廁維護與通報最新動態")
+                    Text("全台公共水廁維護、清潔與使用者通報最新動態")
                         .font(.footnote.weight(.semibold))
                         .foregroundStyle(.secondary)
                 }
                 .padding(.vertical, 2)
             }
 
-            ForEach(newsList) { item in
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack(spacing: 8) {
-                        Text(item.status.title)
-                            .font(.caption.weight(.bold))
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 3)
-                            .foregroundStyle(item.status.color)
-                            .background(item.status.color.opacity(0.15), in: Capsule())
-
-                        Text(item.facilityName)
-                            .font(.headline.weight(.bold))
-                            .foregroundStyle(.primary)
-
-                        Spacer()
-
-                        Text(item.timeText)
-                            .font(.caption)
-                            .foregroundStyle(.tertiary)
+            ForEach(viewModel.liveNewsItems) { item in
+                Button {
+                    if let facilityID = item.facilityID,
+                       let facility = viewModel.facilities.first(where: { $0.id == facilityID }) {
+                        onSelectFacilityOnMap?(facility)
                     }
+                } label: {
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack(spacing: 8) {
+                            Text(item.status.title)
+                                .font(.caption.weight(.bold))
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 3)
+                                .foregroundStyle(item.status.color)
+                                .background(item.status.color.opacity(0.15), in: Capsule())
 
-                    HStack(spacing: 4) {
-                        Image(systemName: "mappin.circle.fill")
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                        Text(item.locationText)
-                            .font(.caption)
+                            Text(item.facilityName)
+                                .font(.headline.weight(.bold))
+                                .foregroundStyle(.primary)
+
+                            Spacer()
+
+                            Text(item.timeText)
+                                .font(.caption)
+                                .foregroundStyle(.tertiary)
+                        }
+
+                        HStack(spacing: 4) {
+                            Image(systemName: "mappin.circle.fill")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                            Text(item.locationText)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+
+                            if item.facilityID != nil {
+                                Spacer()
+                                Text("在地圖查看 ▶")
+                                    .font(.caption.weight(.semibold))
+                                    .foregroundStyle(Color.accentColor)
+                            }
+                        }
+
+                        Text(item.title)
+                            .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
-
-                    Text(item.title)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                    .padding(.vertical, 4)
                 }
-                .padding(.vertical, 4)
+                .buttonStyle(.plain)
             }
         }
         .listStyle(.insetGrouped)
-    }
-}
-
-private struct LiveNewsItem: Identifiable {
-    let id: String
-    let status: NewsStatus
-    let facilityName: String
-    let locationText: String
-    let title: String
-    let timeText: String
-}
-
-private enum NewsStatus {
-    case inProgress
-    case fixed
-    case reported
-    case cleaned
-
-    var title: String {
-        switch self {
-        case .inProgress:
-            "[維護中]"
-        case .fixed:
-            "[已修復]"
-        case .reported:
-            "[通報檢修]"
-        case .cleaned:
-            "[清潔完畢]"
-        }
-    }
-
-    var color: Color {
-        switch self {
-        case .inProgress:
-            .orange
-        case .fixed:
-            .green
-        case .reported:
-            .red
-        case .cleaned:
-            .blue
-        }
     }
 }
 

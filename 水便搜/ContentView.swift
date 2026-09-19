@@ -49,11 +49,19 @@ struct ContentView: View {
             }
             .tag(AppTab.favorites)
 
-            ReportIssueView(viewModel: viewModel, selectedSubTab: $reportSubTab)
-                .tabItem {
-                    Label("回報", systemImage: "exclamationmark.bubble.fill")
+            ReportIssueView(
+                viewModel: viewModel,
+                selectedSubTab: $reportSubTab,
+                onSelectFacilityOnMap: { facility in
+                    SoundManager.shared.stopSound()
+                    viewModel.selectedFacilityID = facility.id
+                    selectedTab = .map
                 }
-                .tag(AppTab.report)
+            )
+            .tabItem {
+                Label("回報", systemImage: "exclamationmark.bubble.fill")
+            }
+            .tag(AppTab.report)
         }
         .task {
             await viewModel.loadFacilities()
@@ -164,6 +172,7 @@ struct MapSearchView: View {
                     selectedFacility: selectedFacility,
                     userLocation: locationManager.userLocation,
                     isFavorite: viewModel.isFavorite(selectedFacility.id),
+                    liveNews: viewModel.liveNews(for: selectedFacility.id),
                     onToggleFavorite: {
                         viewModel.toggleFavorite(selectedFacility.id)
                     },
@@ -474,6 +483,7 @@ struct FacilityResultsPanel: View {
     let selectedFacility: Facility
     let userLocation: CLLocation?
     let isFavorite: Bool
+    let liveNews: [LiveNewsItem]
     let onToggleFavorite: () -> Void
     let onOpenAppleMaps: (Facility) -> Void
     let onOpenGoogleMaps: (Facility) -> Void
@@ -492,6 +502,7 @@ struct FacilityResultsPanel: View {
                 facility: selectedFacility,
                 distanceText: selectedFacility.distanceText(from: userLocation),
                 isFavorite: isFavorite,
+                liveNews: liveNews,
                 onToggleFavorite: onToggleFavorite,
                 onOpenAppleMaps: { onOpenAppleMaps(selectedFacility) },
                 onOpenGoogleMaps: { onOpenGoogleMaps(selectedFacility) },
@@ -508,6 +519,7 @@ struct FacilityDetailView: View {
     let facility: Facility
     let distanceText: String
     let isFavorite: Bool
+    let liveNews: [LiveNewsItem]
     let onToggleFavorite: () -> Void
     let onOpenAppleMaps: () -> Void
     let onOpenGoogleMaps: () -> Void
@@ -569,6 +581,46 @@ struct FacilityDetailView: View {
                     .buttonStyle(.plain)
                     .accessibilityLabel("關閉詳情")
                 }
+            }
+
+            // Live News / User Report Status Notification Box (if available for this facility)
+            if !liveNews.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    Label {
+                        Text("即時維護與通報動態")
+                            .font(.caption.weight(.bold))
+                            .foregroundStyle(.secondary)
+                    } icon: {
+                        Image(systemName: "bell.badge.fill")
+                            .foregroundStyle(.orange)
+                    }
+
+                    ForEach(liveNews) { news in
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack(spacing: 6) {
+                                Text(news.status.title)
+                                    .font(.caption2.weight(.bold))
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
+                                    .foregroundStyle(news.status.color)
+                                    .background(news.status.color.opacity(0.15), in: Capsule())
+
+                                Text(news.timeText)
+                                    .font(.caption2)
+                                    .foregroundStyle(.tertiary)
+                            }
+
+                            Text(news.title)
+                                .font(.footnote.weight(.semibold))
+                                .foregroundStyle(.primary)
+                        }
+                        .padding(8)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(news.status.color.opacity(0.08), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    }
+                }
+                .padding(10)
+                .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
             }
 
             // Location Box Card
